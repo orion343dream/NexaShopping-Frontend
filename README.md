@@ -360,106 +360,137 @@ Configured in `tailwind.config.ts` with:
 
 ---
 
-## � Screenshots & Page Gallery
+## 📸 Screenshots & Page Gallery - Complete User Journey Walkthrough
 
-### User Journey
+### 🏠 **Phase 1: Welcome & Navigation**
 
-#### 1️⃣ **Home Page** - Shopping Hub
-The main landing page showcasing the product catalog with hero slider, featured categories, and quick navigation.
-```
-Route: / → redirects to /shop
-Features: Hero slider, category filters, product grid, search functionality
-```
-![Home/Shop Page](./public/readme/screencapture-136-110-49-14-2026-03-29-14_56_05.png)
+#### Home/Shop Page
+**Purpose:** Main landing page and product catalog  
+**Route:** `/shop` (default: `/`)  
+**Users:** Public and Authenticated  
+**Features:** Hero slider • Product grid • Search & filters • Add to cart • Category browsing
+
+![Home Page](./public/readme/screencapture-136-110-49-14-2026-03-29-14_56_05.png)
 
 ---
 
-#### 2️⃣ **Authentication Pages**
+### 🔐 **Phase 2: Authentication Flow**
 
-##### Login Page
-User authentication with email/password credentials and link to registration.
-```
-Route: /(auth)/login
-Features: Form validation, "Remember me", password recovery link, signup redirect
-```
+#### Login Page
+**Purpose:** User account access  
+**Route:** `/(auth)/login`  
+**Users:** Public (Not authenticated)  
+**Features:** Email/password login • "Remember me" • Password recovery • Registration link
+
 ![Login Page](./public/readme/screencapture-136-110-49-14-login-2026-03-29-14_58_20.png)
 
-##### Register Page
-New user account creation with email, password, and profile information.
-```
-Route: /(auth)/register
-Features: Form validation, password strength indicator, terms acceptance, login redirect
-```
-![Register Page](./public/readme/screencapture-136-110-49-14-register-2026-03-29-14_58_02.png)
+---
+
+#### Registration Page
+**Purpose:** Create new user account  
+**Route:** `/(auth)/register`  
+**Users:** Public (Not authenticated)  
+**Features:** User registration form • Email validation • Password confirmation • Auto-login on success
+
+![Registration Page](./public/readme/screencapture-136-110-49-14-register-2026-03-29-14_58_02.png)
 
 ---
 
-#### 3️⃣ **Shopping Pages**
+### 🛍️ **Phase 3: Shopping Experience**
 
-##### Product Detail Page
-View detailed information about a specific product with images, description, price, and add-to-cart option.
-```
-Route: /shop/[id]
-Features: Image gallery, product specs, pricing, quantity selector, reviews, related items
-Example: /shop/PHONE
-```
+#### Product Detail Page
+**Purpose:** View comprehensive product information  
+**Route:** `/shop/[id]` (Example: `/shop/PHONE`)  
+**Users:** Public and Authenticated  
+**Features:** Detailed product specs • Image gallery • Pricing info • Stock status • Add to cart • Quantity selector
+
 ![Product Detail Page](./public/readme/screencapture-136-110-49-14-shop-PHONE-2026-03-29-14_56_53.png)
 
-##### My Orders Page
-Personal order history for the logged-in user with status tracking and reorder options.
-```
-Route: /my-orders
-Features: Order list, status badges, order details modal, reorder option, order timeline
-```
+---
+
+#### My Orders Page
+**Purpose:** User's personal order history  
+**Route:** `/my-orders`  
+**Users:** Authenticated only  
+**Features:** Order list with status • Order date & total • Reorder option • Order details modal • Timeline view
+
 ![My Orders Page](./public/readme/screencapture-136-110-49-14-my-orders-2026-03-29-14_57_29.png)
 
 ---
 
-#### 4️⃣ **Admin Pages** - Dashboard & Management
+### ⚙️ **Phase 4: Admin Dashboard & Analytics**
 
-##### Admin Dashboard
-Overview of key metrics, recent orders, inventory status, and quick actions.
-```
-Route: /dashboard (Admin only)
-Features: Stats cards, recent orders list, inventory overview, quick action buttons, performance charts
-```
+#### Admin Dashboard
+**Purpose:** System overview and key metrics  
+**Route:** `/dashboard`  
+**Users:** Admin only  
+**Features:** Statistics cards (users, products, orders) • Recent orders list • Inventory overview • Quick action buttons • Performance metrics
+
 ![Admin Dashboard](./public/readme/screencapture-136-110-49-14-dashboard-2026-03-29-14_59_28.png)
 
-##### Users Management
-Complete user management interface for admins - view, create, edit, and delete user accounts.
-```
-Route: /users (Admin only)
-Features: User table, bulk actions, search/filter, user creation form, role assignment
-```
-![Users Management](./public/readme/screencapture-136-110-49-14-users-2026-03-29-14_59_46.png)
+---
 
-##### Items/Products Management
-Admin interface to manage product catalog - create, edit, delete items with images and pricing.
-```
-Route: /items (Admin only)
-Features: Product table, bulk actions, create/edit modal, image upload (base64), category tagging
-```
-![Items Management](./public/readme/screencapture-136-110-49-14-items-2026-03-29-15_00_22.png)
+### 👥 **Phase 5: Admin Management Consoles**
 
-##### Orders Management
-Comprehensive view of all orders in the system with filtering, search, and status updates.
-```
-Route: /orders (Admin only)
-Features: Order table, status filtering, order details, customer information, timeline view
-```
-![Orders Management](./public/readme/screencapture-136-110-49-14-orders-2026-03-29-15_00_53.png)
+#### Users Management
+**Purpose:** Complete user administration  
+**Route:** `/users`  
+**Users:** Admin only  
+**Features:** User list table • Search & filter • Create/edit users • Delete functionality • Role assignment • Bulk actions
+
+![Users Management Console](./public/readme/screencapture-136-110-49-14-users-2026-03-29-14_59_46.png)
 
 ---
 
-#### 5️⃣ **System Monitor** - Monitoring & Analytics
-Real-time system monitoring dashboard showing application logs, API activity, and system health.
-```
-Route: /system-monitor (Admin only)
-Features: Live logs, filtering by type/status, export (CSV/JSON), performance metrics, activity timeline
-```
-![System Monitor](./public/readme/screencapture-136-110-49-14-system-monitor-2026-03-29-15_01_26.png)
+#### Items/Products Management
+**Purpose:** Product catalog administration  
+**Route:** `/items`  
+**Users:** Admin only  
+**Features:** Product inventory table • Search & filter • Create/edit products • Image upload (Base64) • Delete items • Stock management • Category tagging
+
+![Products Management Console](./public/readme/screencapture-136-110-49-14-items-2026-03-29-15_00_22.png)
 
 ---
+
+#### Orders Management
+**Purpose:** System-wide order tracking and processing  
+**Route:** `/orders`  
+**Users:** Admin only  
+**Features:** Complete order list • Status tracking • Filter/search • Order details view • Customer information • Payment status • Timeline view
+
+![Orders Management Console](./public/readme/screencapture-136-110-49-14-orders-2026-03-29-15_00_53.png)
+
+---
+
+### 📊 **Phase 6: System Monitoring & Diagnostics**
+
+#### System Monitor Dashboard
+**Purpose:** Real-time application health and diagnostics  
+**Route:** `/system-monitor`  
+**Users:** Admin only  
+**Features:** Live system logs • Log filtering (type/status/level) • Export functionality (CSV/JSON) • Performance metrics • API activity tracking • Activity timeline • Search capabilities
+
+![System Monitor Dashboard](./public/readme/screencapture-136-110-49-14-system-monitor-2026-03-29-15_01_26.png)
+
+---
+
+### 📋 Screenshots Index
+
+| # | Page | Route | Type | Key Features |
+|---|------|-------|------|--------------|
+| 1 | Home/Shop | `/shop` | Public | Hero slider, product grid, search |
+| 2 | Login | `/(auth)/login` | Auth | Email login, remember me |
+| 3 | Register | `/(auth)/register` | Auth | Account creation, validation |
+| 4 | Product Detail | `/shop/[id]` | Public | Product specs, images, add to cart |
+| 5 | My Orders | `/my-orders` | User | Order history, status tracking |
+| 6 | Dashboard | `/dashboard` | Admin | Stats, metrics, quick actions |
+| 7 | Users | `/users` | Admin | User management, CRUD operations |
+| 8 | Products | `/items` | Admin | Inventory management, uploads |
+| 9 | Orders | `/orders` | Admin | Order tracking, system-wide view |
+| 10 | System Monitor | `/system-monitor` | Admin | Logs, diagnostics, performance |
+
+---
+
 
 ## �📄 Pages Overview
 
@@ -1099,3 +1130,4 @@ The application will be available at: `http://localhost:3000`
 ## Need Help?
 
 If you encounter any issues, feel free to reach out and start a discussion via the Slack workspace.
+
