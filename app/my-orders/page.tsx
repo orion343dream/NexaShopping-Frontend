@@ -695,9 +695,9 @@ function MyOrdersContent() {
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {orders.map((order) => {
                 const prog = findProgram(order.itemId);
-                const qty = getQty(order.id);
+                const qty = order.id ? getQty(order.id) : 1;
                 const price = prog?.price ?? 0;
-                const status = getStatus(order.id);
+                const status = order.id ? getStatus(order.id) : "pending" as OrderStatus;
 
                 return (
                   <div

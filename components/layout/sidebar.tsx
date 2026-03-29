@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useSidebar } from "./sidebar-context";
 import { clearSession, getSession, isAdmin } from "@/lib/auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SessionUser } from "@/lib/auth";
 
 const adminNav = [
@@ -39,9 +39,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { open, close } = useSidebar();
-  const [user, setUser] = useState<SessionUser | null>(null);
-
-  useEffect(() => { setUser(getSession()); }, [pathname]);
+  const [user] = useState<SessionUser | null>(() => getSession());
 
   const handleSignOut = () => {
     clearSession();

@@ -88,40 +88,96 @@ export function ItemForm({ item, onSubmit, onCancel, loading }: Props) {
     await onSubmit(form);
   };
 
+  const fieldLabel = (text: string, required?: boolean, hint?: string) => (
+    <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 6 }}>
+      <label
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: "#6B7280",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+        }}
+      >
+        {text}
+        {required && <span style={{ color: "#EF4444", marginLeft: 2 }}>*</span>}
+      </label>
+      {hint && (
+        <span style={{ fontSize: 10, color: "#9CA3AF", fontWeight: 400 }}>{hint}</span>
+      )}
+    </div>
+  );
+
+  const inputStyle: React.CSSProperties = {
+    height: 40,
+    fontSize: 13,
+    borderRadius: 8,
+    border: "1px solid #E5E7EB",
+    background: "#FFFFFF",
+    width: "100%",
+    padding: "0 12px",
+    color: "#111827",
+    outline: "none",
+    transition: "border-color 0.18s ease, box-shadow 0.18s ease",
+    boxSizing: "border-box",
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-h-[75vh] overflow-y-auto pr-1">
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+        maxHeight: "75vh",
+        overflowY: "auto",
+        paddingRight: 4,
+        fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+      }}
+    >
       {/* Item ID (create only) */}
       {!isEdit && (
-        <div className="space-y-1.5">
-          <Label className="font-semibold text-slate-700">
-            Item Code <span className="text-red-500">*</span>
-            <span className="ml-1 text-[10px] text-slate-400 font-normal">(uppercase letters only, e.g. PHONE)</span>
-          </Label>
+        <div>
+          {fieldLabel("Item Code", true, "uppercase letters only, e.g. PHONE")}
           <Input
             value={form.itemId}
             onChange={(e) => set("itemId", e.target.value.toUpperCase().replace(/[^A-Z]/g, ""))}
             placeholder="e.g. PHONE"
-            className="h-10 font-mono"
             maxLength={20}
+            style={{ ...inputStyle, fontFamily: "monospace" }}
           />
         </div>
       )}
 
       {/* Name + Category */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="font-semibold text-slate-700">Display Name</Label>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+        }}
+      >
+        <div>
+          {fieldLabel("Display Name")}
           <Input
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
             placeholder="Wireless Earbuds Pro"
-            className="h-10"
+            style={inputStyle}
           />
         </div>
-        <div className="space-y-1.5">
-          <Label className="font-semibold text-slate-700">Category</Label>
+        <div>
+          {fieldLabel("Category")}
           <Select value={form.category} onValueChange={(v) => set("category", v)}>
-            <SelectTrigger className="h-10">
+            <SelectTrigger
+              style={{
+                height: 40,
+                fontSize: 13,
+                borderRadius: 8,
+                border: "1px solid #E5E7EB",
+                background: "#FFFFFF",
+              }}
+            >
               <SelectValue placeholder="Select…" />
             </SelectTrigger>
             <SelectContent>
@@ -134,37 +190,60 @@ export function ItemForm({ item, onSubmit, onCancel, loading }: Props) {
       </div>
 
       {/* Short description */}
-      <div className="space-y-1.5">
-        <Label className="font-semibold text-slate-700">Short Tagline</Label>
+      <div>
+        {fieldLabel("Short Tagline")}
         <Input
           value={form.shortDescription}
           onChange={(e) => set("shortDescription", e.target.value)}
           placeholder="One-line product teaser shown on cards"
-          className="h-10"
           maxLength={120}
+          style={inputStyle}
         />
       </div>
 
       {/* Long description */}
-      <div className="space-y-1.5">
-        <Label className="font-semibold text-slate-700">
-          Full Description <span className="text-red-500">*</span>
-        </Label>
+      <div>
+        {fieldLabel("Full Description", true)}
         <Textarea
           value={form.description}
           onChange={(e) => set("description", e.target.value)}
           placeholder="Detailed description of the item…"
-          className="min-h-[80px] resize-none"
           rows={3}
+          style={{
+            fontSize: 13,
+            borderRadius: 8,
+            border: "1px solid #E5E7EB",
+            background: "#FFFFFF",
+            resize: "none",
+            minHeight: 80,
+            padding: "10px 12px",
+            color: "#111827",
+            width: "100%",
+            boxSizing: "border-box",
+            fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+            lineHeight: 1.6,
+          }}
         />
       </div>
 
       {/* Price + Stock */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="font-semibold text-slate-700">Price (LKR)</Label>
-          <div className="relative">
-            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div>
+          {fieldLabel("Price (LKR)")}
+          <div style={{ position: "relative" }}>
+            <DollarSign
+              style={{
+                position: "absolute",
+                left: 10,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 14,
+                height: 14,
+                color: "#9CA3AF",
+                strokeWidth: 1.5,
+                pointerEvents: "none",
+              }}
+            />
             <Input
               type="number"
               min={0}
@@ -172,54 +251,105 @@ export function ItemForm({ item, onSubmit, onCancel, loading }: Props) {
               value={form.price ?? ""}
               onChange={(e) => set("price", e.target.value ? parseFloat(e.target.value) : undefined)}
               placeholder="0.00"
-              className="h-10 pl-9"
+              style={{ ...inputStyle, paddingLeft: 32 }}
             />
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label className="font-semibold text-slate-700">Stock Quantity</Label>
+        <div>
+          {fieldLabel("Stock Quantity")}
           <Input
             type="number"
             min={0}
             value={form.stock ?? ""}
             onChange={(e) => set("stock", e.target.value ? parseInt(e.target.value) : undefined)}
             placeholder="e.g. 100"
-            className="h-10"
+            style={inputStyle}
           />
         </div>
       </div>
 
       {/* Image upload */}
-      <div className="space-y-2">
-        <Label className="font-semibold text-slate-700">
-          Product Images
-          <span className="ml-1 text-[10px] text-slate-400 font-normal">(up to 4)</span>
-        </Label>
-        <div className="flex gap-2 flex-wrap">
+      <div>
+        {fieldLabel("Product Images", false, "up to 4")}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
           {form.images.map((src, i) => (
-            <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
-              <img src={src} alt="" className="w-full h-full object-cover" />
+            <div
+              key={i}
+              style={{
+                position: "relative",
+                width: 76,
+                height: 76,
+                borderRadius: 10,
+                overflow: "hidden",
+                border: "1px solid #E5E7EB",
+              }}
+              className="group"
+            >
+              <img
+                src={src}
+                alt=""
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
               <button
                 type="button"
                 onClick={() => removeImage(i)}
-                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "rgba(0,0,0,0.52)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#FFFFFF",
+                  border: "none",
+                  cursor: "pointer",
+                  opacity: 0,
+                  transition: "opacity 0.18s ease",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "0")}
               >
-                <X className="h-4 w-4" />
+                <X style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
               </button>
             </div>
           ))}
+
           {form.images.length < 4 && (
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="h-20 w-20 rounded-xl border-2 border-dashed border-slate-300 hover:border-violet-400 hover:bg-violet-50 transition-colors flex flex-col items-center justify-center text-slate-400 hover:text-violet-500"
+              style={{
+                width: 76,
+                height: 76,
+                borderRadius: 10,
+                border: "1.5px dashed #D1D5DB",
+                background: "none",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "#9CA3AF",
+                gap: 3,
+                transition: "border-color 0.18s ease, color 0.18s ease, background 0.18s ease",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "#6366F1";
+                (e.currentTarget as HTMLButtonElement).style.color = "#6366F1";
+                (e.currentTarget as HTMLButtonElement).style.background = "#EEF2FF";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "#D1D5DB";
+                (e.currentTarget as HTMLButtonElement).style.color = "#9CA3AF";
+                (e.currentTarget as HTMLButtonElement).style.background = "none";
+              }}
             >
               {imgLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 style={{ width: 18, height: 18, strokeWidth: 1.5 }} className="animate-spin" />
               ) : (
                 <>
-                  <ImagePlus className="h-5 w-5 mb-0.5" />
-                  <span className="text-[10px] font-medium">Add</span>
+                  <ImagePlus style={{ width: 18, height: 18, strokeWidth: 1.5 }} />
+                  <span style={{ fontSize: 10, fontWeight: 600 }}>Add</span>
                 </>
               )}
             </button>
@@ -230,30 +360,75 @@ export function ItemForm({ item, onSubmit, onCancel, loading }: Props) {
           type="file"
           accept="image/*"
           multiple
-          className="hidden"
+          style={{ display: "none" }}
           onChange={(e) => handleImages(e.target.files)}
         />
-        <p className="text-[11px] text-slate-400">Images are stored as base64. Recommended: square, under 500KB each.</p>
+        <p style={{ fontSize: 11, color: "#9CA3AF", margin: 0 }}>
+          Images are stored as base64. Recommended: square, under 500 KB each.
+        </p>
       </div>
 
       {/* Footer buttons */}
-      <div className="flex gap-2 pt-2 border-t border-slate-100">
-        <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          paddingTop: 16,
+          borderTop: "1px solid #F3F4F6",
+        }}
+      >
+        <button
+          type="button"
+          onClick={onCancel}
+          style={{
+            flex: 1,
+            height: 40,
+            fontSize: 13,
+            fontWeight: 600,
+            background: "#FFFFFF",
+            color: "#374151",
+            border: "1px solid #E5E7EB",
+            borderRadius: 8,
+            cursor: "pointer",
+            transition: "background 0.18s ease",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = "#F3F4F6")}
+          onMouseLeave={e => (e.currentTarget.style.background = "#FFFFFF")}
+        >
           Cancel
-        </Button>
-        <Button
+        </button>
+        <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-gradient-to-r from-amber-500 to-violet-600 text-white border-0 hover:from-amber-600 hover:to-violet-700"
+          style={{
+            flex: 1,
+            height: 40,
+            fontSize: 13,
+            fontWeight: 600,
+            background: loading ? "#A5B4FC" : "#6366F1",
+            color: "#FFFFFF",
+            border: "none",
+            borderRadius: 8,
+            cursor: loading ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            transition: "background 0.18s ease, transform 0.18s ease",
+          }}
+          onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#4F46E5"; }}
+          onMouseLeave={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#6366F1"; }}
+          onMouseDown={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.97)"; }}
+          onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          {loading && <Loader2 style={{ width: 14, height: 14, strokeWidth: 1.5 }} className="animate-spin" />}
           {loading ? "Saving…" : isEdit ? "Save Changes" : "Create Item"}
-        </Button>
+        </button>
       </div>
     </form>
   );
 }
 
 // Backward compat
-export { ItemFormValues as ProgramFormValues };
+export type { ItemFormValues as ProgramFormValues };
 export { ItemForm as ProgramForm };

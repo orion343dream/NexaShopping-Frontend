@@ -17,13 +17,9 @@ const navLinks = [
 export function PublicNav({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<SessionUser | null>(null);
+  const [user, setUser] = useState<SessionUser | null>(() => getSession());
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    setUser(getSession());
-  }, [pathname]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,11 +36,7 @@ export function Header() {
   const pathname = usePathname();
   const title = getTitle(pathname);
   const { toggle } = useSidebar();
-  const [user, setUser] = useState<SessionUser | null>(null);
-
-  useEffect(() => {
-    setUser(getSession());
-  }, [pathname]);
+  const [user] = useState<SessionUser | null>(() => getSession());
 
   const rStyle = rolePillStyle[user?.role ?? ""] ?? { bg: "#F9FAFB", text: "#6B7280", border: "#E5E7EB", dot: "#9CA3AF" };
 

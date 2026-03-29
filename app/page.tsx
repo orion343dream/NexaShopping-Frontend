@@ -727,7 +727,7 @@ export default function HomePage() {
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.style.background = "rgba(255, 255, 255, 0.18)";
-                      e.currentTarget.style.borders = "1.5px solid rgba(255, 255, 255, 0.32)";
+                      e.currentTarget.style.border = "1.5px solid rgba(255, 255, 255, 0.32)";
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.background = "rgba(255, 255, 255, 0.12)";

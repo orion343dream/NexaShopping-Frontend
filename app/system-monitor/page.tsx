@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import {
-  Search,
   Download,
-  Filter,
   Activity,
   AlertCircle,
   CheckCircle,
@@ -14,22 +12,20 @@ import {
   Settings,
   User,
   ShoppingCart,
-  FileText,
   Zap,
   ChevronDown,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 
 interface SystemLog {
   id: string;
   timestamp: Date;
-  type: "api" | "user_action" | "order" | "error" | "system";
+  type: "api" | "user_action" | "order" | "error" | "system" | "warning";
   action: string;
   status: "success" | "pending" | "error" | "warning";
   details: string;
   user?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Mock real system data
@@ -172,7 +168,8 @@ export default function SystemMonitorPage() {
       return;
     }
     setLogs(generateMockLogs());
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let filtered = logs;

@@ -32,11 +32,10 @@ export default function DashboardPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<SessionUser | null>(null);
+  const [session] = useState<SessionUser | null>(() => getSession());
 
   useEffect(() => {
     const currentSession = getSession();
-    setSession(currentSession);
     
     async function load() {
       // Fetch each independently so one down service doesn't block all stats
