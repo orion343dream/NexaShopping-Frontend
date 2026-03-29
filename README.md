@@ -45,6 +45,12 @@ A **modern, responsive e-commerce web application** built with **Next.js 16**, *
 
 ---
 
+### 🖼️ Live Application Screenshot
+
+![NexaShopping Home Page](./public/readme/screencapture-136-110-49-14-2026-03-29-14_56_05.png)
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend Framework
