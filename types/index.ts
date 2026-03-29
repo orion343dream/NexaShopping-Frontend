@@ -1,3 +1,22 @@
+// ─── Student type (backend DTO) ────────────────────────────────────────────
+export interface Student {
+  nic: string;
+  name: string;
+  address: string;
+  mobile: string;
+  email?: string;
+  picture?: string;
+}
+
+export interface StudentFormData {
+  nic: string;
+  name: string;
+  address: string;
+  mobile: string;
+  email?: string;
+  picture?: File | null;
+}
+
 // ─── POS User types ────────────────────────────────────────────────────────
 export interface User {
   id: string;         // maps to user nic
@@ -19,25 +38,6 @@ export interface UserFormData {
   email?: string;
   picture?: File | null;
   role?: string;
-}
-
-// Student types (kept for backward compat with backend DTO mapping)
-export interface Student {
-  nic: string;
-  name: string;
-  address: string;
-  mobile: string;
-  email?: string;
-  picture?: string;
-}
-
-export interface StudentFormData {
-  nic: string;
-  name: string;
-  address: string;
-  mobile: string;
-  email?: string;
-  picture?: File | null;
 }
 
 // ─── Item types ────────────────────────────────────────────────────────────

@@ -57,10 +57,50 @@ export default function ItemDetailPage() {
 
   if (loading) return <ItemDetailSkeleton />;
   if (!item) return (
-    <div className="max-w-3xl mx-auto px-4 py-24 text-center">
-      <Package className="h-16 w-16 mx-auto mb-4 text-slate-200" />
-      <h2 className="text-xl font-bold text-slate-700 mb-2">Item not found</h2>
-      <Link href="/"><Button variant="outline">← Back to Shop</Button></Link>
+    <div
+      style={{
+        fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+        maxWidth: 960,
+        margin: "0 auto",
+        padding: "96px 24px",
+        textAlign: "center",
+      }}
+    >
+      <div
+        style={{
+          width: 64,
+          height: 64,
+          borderRadius: 16,
+          background: "#F3F4F6",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          margin: "0 auto 16px",
+        }}
+      >
+        <Package style={{ width: 28, height: 28, color: "#D1D5DB", strokeWidth: 1.5 }} />
+      </div>
+      <h2 style={{ fontSize: 20, fontWeight: 700, color: "#111827", margin: "0 0 8px" }}>Item not found</h2>
+      <Link href="/">
+        <button
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "8px 16px",
+            background: "#FFFFFF",
+            color: "#374151",
+            border: "1px solid #E5E7EB",
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: "pointer",
+            marginTop: 8,
+          }}
+        >
+          ← Back to Shop
+        </button>
+      </Link>
     </div>
   );
 
@@ -69,50 +109,164 @@ export default function ItemDetailPage() {
   const inStock = (item.stock ?? 1) > 0;
 
   return (
-    <div className="bg-slate-50 min-h-screen">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-          <Link href="/" className="hover:text-violet-700 transition-colors">Home</Link>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <Link href="/#shop" className="hover:text-violet-700 transition-colors">Shop</Link>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-slate-900 font-medium truncate max-w-[200px]">{displayName}</span>
+    <div
+      style={{
+        fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+        background: "#F9FAFB",
+        minHeight: "100vh",
+      }}
+    >
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px 80px" }}>
+
+        {/* ── Breadcrumb ─────────────────────────────────────────────────────── */}
+        <nav
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 13,
+            color: "#9CA3AF",
+            marginBottom: 28,
+          }}
+        >
+          <Link
+            href="/"
+            style={{
+              color: "#6B7280",
+              textDecoration: "none",
+              transition: "color 0.18s ease",
+            }}
+            onMouseEnter={e => ((e.target as HTMLAnchorElement).style.color = "#6366F1")}
+            onMouseLeave={e => ((e.target as HTMLAnchorElement).style.color = "#6B7280")}
+          >
+            Home
+          </Link>
+          <ChevronRight style={{ width: 13, height: 13, strokeWidth: 1.5 }} />
+          <Link
+            href="/#shop"
+            style={{
+              color: "#6B7280",
+              textDecoration: "none",
+              transition: "color 0.18s ease",
+            }}
+            onMouseEnter={e => ((e.target as HTMLAnchorElement).style.color = "#6366F1")}
+            onMouseLeave={e => ((e.target as HTMLAnchorElement).style.color = "#6B7280")}
+          >
+            Shop
+          </Link>
+          <ChevronRight style={{ width: 13, height: 13, strokeWidth: 1.5 }} />
+          <span
+            style={{
+              color: "#111827",
+              fontWeight: 500,
+              maxWidth: 200,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {displayName}
+          </span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* ── IMAGE GALLERY ── */}
-          <div className="space-y-3">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: 40,
+            alignItems: "start",
+          }}
+        >
+          {/* ── IMAGE GALLERY ──────────────────────────────────────────────── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {/* Main image */}
-            <div className="rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm aspect-square relative group">
+            <div
+              style={{
+                borderRadius: 14,
+                overflow: "hidden",
+                background: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                aspectRatio: "1 / 1",
+                position: "relative",
+              }}
+            >
               {imgs.length > 0 ? (
                 <img
                   src={imgs[activeImg]}
                   alt={displayName}
-                  className="w-full h-full object-cover transition-all duration-500"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    transition: "transform 0.25s ease",
+                    display: "block",
+                  }}
                 />
               ) : (
                 <div
-                  className="w-full h-full flex items-center justify-center"
-                  style={{ background: "linear-gradient(135deg,#f1f5f9,#e2e8f0)" }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)",
+                  }}
                 >
-                  <Package className="h-24 w-24 text-slate-300" />
+                  <Package style={{ width: 64, height: 64, color: "#D1D5DB", strokeWidth: 1.5 }} />
                 </div>
               )}
-              {/* Nav arrows if multiple images */}
+
+              {/* Nav arrows */}
               {imgs.length > 1 && (
                 <>
                   <button
                     onClick={() => setActiveImg((i) => (i - 1 + imgs.length) % imgs.length)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center hover:bg-white transition-colors"
+                    style={{
+                      position: "absolute",
+                      left: 12,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 36,
+                      height: 36,
+                      borderRadius: "50%",
+                      background: "rgba(255,255,255,0.92)",
+                      border: "1px solid #E5E7EB",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      transition: "background 0.18s ease",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "#FFFFFF")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.92)")}
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft style={{ width: 16, height: 16, color: "#374151", strokeWidth: 1.5 }} />
                   </button>
                   <button
                     onClick={() => setActiveImg((i) => (i + 1) % imgs.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center hover:bg-white transition-colors"
+                    style={{
+                      position: "absolute",
+                      right: 12,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      width: 36,
+                      height: 36,
+                      borderRadius: "50%",
+                      background: "rgba(255,255,255,0.92)",
+                      border: "1px solid #E5E7EB",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      transition: "background 0.18s ease",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "#FFFFFF")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.92)")}
                   >
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight style={{ width: 16, height: 16, color: "#374151", strokeWidth: 1.5 }} />
                   </button>
                 </>
               )}
@@ -120,157 +274,400 @@ export default function ItemDetailPage() {
 
             {/* Thumbnails */}
             {imgs.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
+              <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
                 {imgs.map((src, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveImg(i)}
-                    className={`shrink-0 h-16 w-16 rounded-xl overflow-hidden border-2 transition-all ${
-                      i === activeImg ? "border-violet-500 shadow-md" : "border-slate-200 opacity-70 hover:opacity-100"
-                    }`}
+                    style={{
+                      flexShrink: 0,
+                      width: 60,
+                      height: 60,
+                      borderRadius: 8,
+                      overflow: "hidden",
+                      border: i === activeImg ? "2px solid #6366F1" : "2px solid #E5E7EB",
+                      cursor: "pointer",
+                      opacity: i === activeImg ? 1 : 0.65,
+                      transition: "border-color 0.18s ease, opacity 0.18s ease",
+                      padding: 0,
+                      background: "none",
+                    }}
+                    onMouseEnter={e => { if (i !== activeImg) (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+                    onMouseLeave={e => { if (i !== activeImg) (e.currentTarget as HTMLButtonElement).style.opacity = "0.65"; }}
                   >
-                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={src}
+                      alt=""
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* ── ITEM INFO ── */}
-          <div className="space-y-5">
-            {/* Category + ID */}
-            <div className="flex items-center gap-2 flex-wrap">
+          {/* ── ITEM INFO ──────────────────────────────────────────────────── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+            {/* Category + ID + Stars */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               {item.category && (
-                <Badge className="bg-violet-100 text-violet-700 border-0 font-medium">
-                  <Tag className="h-3 w-3 mr-1" />
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#4338CA",
+                    background: "#EEF2FF",
+                    borderRadius: 999,
+                    padding: "3px 10px",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  <Tag style={{ width: 10, height: 10, strokeWidth: 1.5 }} />
                   {item.category}
-                </Badge>
+                </span>
               )}
-              <Badge variant="outline" className="font-mono text-slate-500 text-xs">
-                ID: {item.itemId}
-              </Badge>
-              <div className="ml-auto flex items-center gap-1 text-amber-400">
+              <span
+                style={{
+                  fontSize: 11,
+                  fontFamily: "monospace",
+                  color: "#6B7280",
+                  background: "#F3F4F6",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: 6,
+                  padding: "2px 8px",
+                }}
+              >
+                {item.itemId}
+              </span>
+              <div
+                style={{
+                  marginLeft: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                }}
+              >
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-amber-400" />
+                  <Star
+                    key={i}
+                    style={{ width: 13, height: 13, color: "#F59E0B", fill: "#F59E0B", strokeWidth: 0 }}
+                  />
                 ))}
-                <span className="text-xs text-slate-500 ml-1">(4.9)</span>
+                <span style={{ fontSize: 12, color: "#9CA3AF", marginLeft: 4 }}>(4.9)</span>
               </div>
             </div>
 
             {/* Name */}
-            <h1 className="text-3xl font-extrabold text-slate-900 leading-tight">
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 800,
+                color: "#111827",
+                margin: 0,
+                lineHeight: 1.25,
+                letterSpacing: "-0.01em",
+              }}
+            >
               {displayName}
             </h1>
 
             {/* Short description */}
             {item.shortDescription && (
-              <p className="text-slate-500 text-base leading-relaxed">{item.shortDescription}</p>
+              <p style={{ fontSize: 14, color: "#6B7280", margin: 0, lineHeight: 1.7 }}>
+                {item.shortDescription}
+              </p>
             )}
 
             {/* Price */}
-            <div className="flex items-end gap-3">
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
               {item.price != null ? (
                 <>
-                  <span className="text-4xl font-extrabold text-slate-900">
+                  <span style={{ fontSize: 32, fontWeight: 800, color: "#111827", lineHeight: 1 }}>
                     LKR {Number(item.price).toLocaleString()}
                   </span>
-                  <span className="text-slate-400 text-sm pb-1">incl. taxes</span>
+                  <span style={{ fontSize: 13, color: "#9CA3AF", paddingBottom: 3 }}>incl. taxes</span>
                 </>
               ) : (
-                <span className="text-xl text-slate-400 italic">Price on request</span>
+                <span style={{ fontSize: 18, color: "#9CA3AF", fontStyle: "italic" }}>Price on request</span>
               )}
             </div>
 
             {/* Stock status */}
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {inStock ? (
-                <>
-                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                  <span className="text-emerald-600 font-semibold text-sm">
-                    In Stock {item.stock != null && `(${item.stock} available)`}
-                  </span>
-                </>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#15803D",
+                    background: "#F0FDF4",
+                    border: "1px solid #BBF7D0",
+                    borderRadius: 999,
+                    padding: "4px 12px",
+                  }}
+                >
+                  <CheckCircle2 style={{ width: 13, height: 13, strokeWidth: 1.5 }} />
+                  In Stock {item.stock != null && `· ${item.stock} available`}
+                </span>
               ) : (
-                <>
-                  <XCircle className="h-5 w-5 text-red-400" />
-                  <span className="text-red-500 font-semibold text-sm">Out of Stock</span>
-                </>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#DC2626",
+                    background: "#FEF2F2",
+                    border: "1px solid #FECACA",
+                    borderRadius: 999,
+                    padding: "4px 12px",
+                  }}
+                >
+                  <XCircle style={{ width: 13, height: 13, strokeWidth: 1.5 }} />
+                  Out of Stock
+                </span>
               )}
             </div>
 
             {/* Divider */}
-            <div className="border-t border-slate-100" />
+            <div style={{ borderTop: "1px solid #F3F4F6" }} />
 
             {/* Full description */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-2">Description</h3>
-              <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+              <p
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "#9CA3AF",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  margin: "0 0 10px",
+                }}
+              >
+                Description
+              </p>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "#374151",
+                  lineHeight: 1.75,
+                  margin: 0,
+                  whiteSpace: "pre-line",
+                }}
+              >
                 {item.description}
               </p>
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 pt-2">
-              <Button
-                size="lg"
+            <div style={{ display: "flex", gap: 10, paddingTop: 4 }}>
+              <button
                 disabled={!inStock}
                 onClick={handleOrder}
-                className="flex-1 h-12 text-base font-bold bg-gradient-to-r from-amber-500 to-violet-600 text-white border-0 hover:from-amber-600 hover:to-violet-700 disabled:opacity-50 shadow-lg"
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  height: 48,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  background: inStock ? "#6366F1" : "#D1D5DB",
+                  border: "none",
+                  borderRadius: 10,
+                  cursor: inStock ? "pointer" : "not-allowed",
+                  transition: "background 0.18s ease, transform 0.18s ease",
+                  letterSpacing: "0.01em",
+                }}
+                onMouseEnter={e => { if (inStock) (e.currentTarget as HTMLButtonElement).style.background = "#4F46E5"; }}
+                onMouseLeave={e => { if (inStock) (e.currentTarget as HTMLButtonElement).style.background = "#6366F1"; }}
+                onMouseDown={e => { if (inStock) (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.97)"; }}
+                onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
               >
-                <ShoppingCart className="h-5 w-5 mr-2" />
+                <ShoppingCart style={{ width: 18, height: 18, strokeWidth: 1.5 }} />
                 {inStock ? "Place Order" : "Out of Stock"}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-12 px-4"
+              </button>
+
+              <button
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
                   toast.success("Link copied!");
                 }}
+                style={{
+                  width: 48,
+                  height: 48,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: 10,
+                  cursor: "pointer",
+                  color: "#6B7280",
+                  transition: "background 0.18s ease, color 0.18s ease",
+                  flexShrink: 0,
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "#F3F4F6";
+                  (e.currentTarget as HTMLButtonElement).style.color = "#111827";
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "#FFFFFF";
+                  (e.currentTarget as HTMLButtonElement).style.color = "#6B7280";
+                }}
               >
-                <Share2 className="h-4 w-4" />
-              </Button>
+                <Share2 style={{ width: 16, height: 16, strokeWidth: 1.5 }} />
+              </button>
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
+            {/* Back link */}
+            <button
               onClick={() => router.back()}
-              className="text-slate-400 hover:text-slate-600 gap-1"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 13,
+                color: "#9CA3AF",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                transition: "color 0.18s ease",
+                alignSelf: "flex-start",
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = "#374151")}
+              onMouseLeave={e => (e.currentTarget.style.color = "#9CA3AF")}
             >
-              <ArrowLeft className="h-3.5 w-3.5" /> Back to Shop
-            </Button>
+              <ArrowLeft style={{ width: 13, height: 13, strokeWidth: 1.5 }} />
+              Back to Shop
+            </button>
           </div>
         </div>
       </div>
 
-      {/* ── AUTH MODAL ── */}
+      {/* ── AUTH MODAL ─────────────────────────────────────────────────────── */}
       {authModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setAuthModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl p-7 w-full max-w-sm text-center">
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+        >
+          {/* Backdrop */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              backdropFilter: "blur(6px)",
+            }}
+            onClick={() => setAuthModal(false)}
+          />
+
+          {/* Modal panel */}
+          <div
+            style={{
+              position: "relative",
+              background: "#FFFFFF",
+              borderRadius: 16,
+              border: "1px solid #E5E7EB",
+              boxShadow: "0 24px 64px rgba(0,0,0,0.16)",
+              padding: "32px 28px",
+              width: "100%",
+              maxWidth: 380,
+              textAlign: "center",
+            }}
+          >
+            {/* Icon */}
             <div
-              className="h-14 w-14 rounded-2xl mx-auto mb-4 flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg,#f59e0b,#7c3aed)" }}
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 14,
+                background: "#6366F1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 20px",
+              }}
             >
-              <ShoppingCart className="h-7 w-7 text-white" />
+              <ShoppingCart style={{ width: 24, height: 24, color: "#FFFFFF", strokeWidth: 1.5 }} />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Sign in to Order</h3>
-            <p className="text-slate-500 text-sm mb-5">
-              You need an account to place orders for <strong>{displayName}</strong>.
+
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: "#111827", margin: "0 0 8px" }}>
+              Sign in to Order
+            </h3>
+            <p style={{ fontSize: 14, color: "#6B7280", margin: "0 0 24px", lineHeight: 1.6 }}>
+              You need an account to place orders for{" "}
+              <strong style={{ color: "#111827" }}>{displayName}</strong>.
             </p>
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => setAuthModal(false)}>Cancel</Button>
-              <Link href={`/login?from=/shop/${params.id}`} className="flex-1">
-                <Button className="w-full bg-gradient-to-r from-amber-500 to-violet-600 text-white border-0">
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => setAuthModal(false)}
+                style={{
+                  flex: 1,
+                  padding: "10px 0",
+                  background: "#FFFFFF",
+                  color: "#374151",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "background 0.18s ease",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#F3F4F6")}
+                onMouseLeave={e => (e.currentTarget.style.background = "#FFFFFF")}
+              >
+                Cancel
+              </button>
+              <Link href={`/login?from=/shop/${params.id}`} style={{ flex: 1, display: "block" }}>
+                <button
+                  style={{
+                    width: "100%",
+                    padding: "10px 0",
+                    background: "#6366F1",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "background 0.18s ease",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "#4F46E5")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "#6366F1")}
+                >
                   Sign In
-                </Button>
+                </button>
               </Link>
             </div>
-            <p className="mt-3 text-xs text-slate-400">
+
+            <p style={{ marginTop: 16, fontSize: 12, color: "#9CA3AF" }}>
               No account?{" "}
-              <Link href="/register" className="text-violet-600 font-medium hover:underline">Register free</Link>
+              <Link
+                href="/register"
+                style={{ color: "#6366F1", fontWeight: 600, textDecoration: "none" }}
+              >
+                Register free
+              </Link>
             </p>
           </div>
         </div>
@@ -281,16 +678,31 @@ export default function ItemDetailPage() {
 
 function ItemDetailSkeleton() {
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-      <Skeleton className="h-4 w-48 mb-6" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <Skeleton className="aspect-square rounded-2xl w-full" />
-        <div className="space-y-4">
-          <Skeleton className="h-6 w-1/3" />
-          <Skeleton className="h-10 w-3/4" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-12 w-1/2" />
-          <Skeleton className="h-12 w-full" />
+    <div
+      style={{
+        fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+        background: "#F9FAFB",
+        minHeight: "100vh",
+      }}
+    >
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
+        <Skeleton className="h-4 w-48 mb-7 rounded" />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: 40,
+          }}
+        >
+          <Skeleton className="rounded-2xl w-full" style={{ aspectRatio: "1/1" }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <Skeleton className="h-5 w-1/3 rounded" />
+            <Skeleton className="h-9 w-3/4 rounded" />
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-4 w-5/6 rounded" />
+            <Skeleton className="h-10 w-2/5 rounded" />
+            <Skeleton className="h-12 w-full rounded-xl" />
+          </div>
         </div>
       </div>
     </div>

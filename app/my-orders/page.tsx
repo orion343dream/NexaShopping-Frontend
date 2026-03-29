@@ -29,20 +29,24 @@ function loadQtys(): Record<string, number> {
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; icon: React.ElementType }> = {
-  pending: { label: "Pending", color: "bg-amber-100 text-amber-700", icon: Clock },
-  accepted: { label: "Accepted", color: "bg-blue-100 text-blue-700", icon: CheckCircle2 },
-  shipped: { label: "Shipped", color: "bg-violet-100 text-violet-700", icon: Truck },
-  completed: { label: "Completed", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
-  cancelled: { label: "Cancelled", color: "bg-red-100 text-red-600", icon: XCircle },
-  refunded: { label: "Refunded", color: "bg-slate-100 text-slate-600", icon: RotateCcw },
+  pending:   { label: "Pending",   color: "bg-amber-50 text-amber-700 border border-amber-200",      icon: Clock        },
+  accepted:  { label: "Accepted",  color: "bg-blue-50 text-blue-700 border border-blue-200",         icon: CheckCircle2 },
+  shipped:   { label: "Shipped",   color: "bg-indigo-50 text-indigo-700 border border-indigo-200",   icon: Truck        },
+  completed: { label: "Completed", color: "bg-emerald-50 text-emerald-700 border border-emerald-200",icon: CheckCircle2 },
+  cancelled: { label: "Cancelled", color: "bg-red-50 text-red-600 border border-red-200",            icon: XCircle      },
+  refunded:  { label: "Refunded",  color: "bg-slate-50 text-slate-600 border border-slate-200",      icon: RotateCcw    },
 };
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.color}`}>
-      <Icon className="h-3 w-3" />{cfg.label}
+    <span
+      className={`inline-flex items-center gap-1.5 text-[11px] font-600 px-2.5 py-1 rounded-full ${cfg.color}`}
+      style={{ fontWeight: 600, letterSpacing: "0.02em" }}
+    >
+      <Icon className="h-3 w-3" style={{ strokeWidth: 1.5 }} />
+      {cfg.label}
     </span>
   );
 }
@@ -54,34 +58,28 @@ function MyOrdersContent() {
   const urlAction = searchParams.get("action");
   const urlItemId = searchParams.get("itemId");
 
-  // Auth — initialise null to avoid SSR hydration mismatch (localStorage is client-only)
   const [session, setSession] = useState<ReturnType<typeof getSession>>(null);
 
-  // Order confirm
   const [pendingItem, setPendingItem] = useState<Item | null>(null);
   const [loadingItem, setLoadingItem] = useState(false);
   const [newOrderQty, setNewOrderQty] = useState(1);
   const [confirming, setConfirming] = useState(false);
 
-  // Order history
   const [orders, setOrders] = useState<Order[]>([]);
   const [programs, setPrograms] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [statuses, setStatuses] = useState<Record<string, OrderStatus>>({});
   const [qtys, setQtys] = useState<Record<string, number>>({});
 
-  // Load statuses/qtys from localStorage
   useEffect(() => {
     setStatuses(loadStatuses());
     setQtys(loadQtys());
     setSession(getSession());
   }, []);
 
-  // ── Auth check ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const s = getSession();
     if (!s) {
-      // Redirect to login with return URL
       const returnUrl = urlItemId
         ? `/my-orders?action=new&itemId=${urlItemId}`
         : "/my-orders";
@@ -89,7 +87,6 @@ function MyOrdersContent() {
     }
   }, [router, urlItemId]);
 
-  // ── Fetch item for confirm card ────────────────────────────────────────────
   useEffect(() => {
     if (urlAction !== "new" || !urlItemId) return;
     setLoadingItem(true);
@@ -99,7 +96,6 @@ function MyOrdersContent() {
       .finally(() => setLoadingItem(false));
   }, [urlAction, urlItemId]);
 
-  // ── Fetch order history ────────────────────────────────────────────────────
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
@@ -109,12 +105,10 @@ function MyOrdersContent() {
       ]);
       setPrograms(allPrograms);
       const s = getSession();
-      // Filter to only this user's orders
       const mine = s
         ? allEnrollments.filter((e) => e.userId === s.id).sort((a, b) => (b.id ?? 0) - (a.id ?? 0))
         : [];
       setOrders(mine);
-      // Refresh localStorage statuses
       setStatuses(loadStatuses());
       setQtys(loadQtys());
     } catch {
@@ -130,7 +124,6 @@ function MyOrdersContent() {
   const getQty = (id: string | number): number => qtys[String(id)] ?? 1;
   const findProgram = (itemId: string) => programs.find((p) => p.itemId === itemId);
 
-  // ── Confirm order handler ──────────────────────────────────────────────────
   const handleConfirmOrder = async () => {
     const s = getSession();
     if (!s || !urlItemId) return;
@@ -146,7 +139,6 @@ function MyOrdersContent() {
         date: dateStr,
       });
 
-      // Save local meta (status & qty)
       const sid = String(created.id);
       const nextStatuses = { ...loadStatuses(), [sid]: "pending" as OrderStatus };
       const nextQtys = { ...loadQtys(), [sid]: newOrderQty };
@@ -169,7 +161,6 @@ function MyOrdersContent() {
       await orderApi.delete(orderId);
       toast.success("Order removed from history");
 
-      // Remove from localStorage
       const sid = String(orderId);
       const nextStatuses = { ...loadStatuses() };
       const nextQtys = { ...loadQtys() };
@@ -186,237 +177,669 @@ function MyOrdersContent() {
 
   const unitPrice = pendingItem?.price ?? 0;
 
-  if (!session) return null; // redirect happens in useEffect
+  if (!session) return null;
 
   // ═══════════════════════════════════════════════════════════════════════════
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+    <div
+      style={{
+        fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+        background: "linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 50%, #EEF2FF 100%)",
+        minHeight: "100vh",
+        position: "relative",
+      }}
+    >
+      {/* Decorative gradient blob background */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          background: "radial-gradient(circle at 20% 30%, rgba(99,102,241,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(139,92,246,0.06) 0%, transparent 50%)",
+          zIndex: 0,
+        }}
+      />
 
-      {/* ── Back + Title ────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 mb-8">
-        <Link href="/">
-          <Button variant="ghost" size="icon" className="rounded-full border border-slate-200 hover:bg-slate-100">
-            <ArrowLeft className="h-5 w-5 text-slate-600" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <ShoppingBag className="h-6 w-6 text-violet-600" />
-            My Orders
-          </h1>
-          <p className="text-sm text-slate-500">Manage your orders and track delivery status</p>
+      {/* ── Page shell ────────────────────────────────────────────────────── */}
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 24px 64px", position: "relative", zIndex: 1 }}>
+
+        {/* ── Back + Title ──────────────────────────────────────────────── */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 40 }}>
+          <Link href="/">
+            <button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                border: "1px solid rgba(99,102,241,0.2)",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(249,250,251,0.8) 100%)",
+                cursor: "pointer",
+                transition: "all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                flexShrink: 0,
+                boxShadow: "0 4px 12px rgba(99,102,241,0.12), 0 0 1px rgba(255,255,255,0.5) inset",
+                backdropFilter: "blur(8px)",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, rgba(249,250,251,0.9) 0%, rgba(243,244,246,0.9) 100%)";
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 16px rgba(99,102,241,0.20), 0 0 1px rgba(255,255,255,0.5) inset";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(249,250,251,0.8) 100%)";
+                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 12px rgba(99,102,241,0.12), 0 0 1px rgba(255,255,255,0.5) inset";
+              }}
+            >
+              <ArrowLeft style={{ width: 18, height: 18, color: "#6366F1", strokeWidth: 2 }} />
+            </button>
+          </Link>
+          <div>
+            <h1
+              style={{
+                fontSize: 32,
+                fontWeight: 900,
+                margin: 0,
+                lineHeight: 1.2,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                background: "linear-gradient(135deg, #111827 0%, #374151 100%)",
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              <ShoppingBag style={{ width: 28, height: 28, color: "#6366F1", strokeWidth: 1.8 }} />
+              My Orders
+            </h1>
+            <p style={{ fontSize: 15, color: "#6B7280", margin: "6px 0 0", lineHeight: 1.6 }}>
+              Track and manage your purchases with ease
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* ── Confirm Order Card ──────────────────────────────────────────── */}
-      {urlAction === "new" && urlItemId && (
-        <div className="mb-10">
-          {loadingItem ? (
-            <div className="rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-8">
-              <div className="flex gap-6">
-                <Skeleton className="h-32 w-32 rounded-xl" />
-                <div className="flex-1 space-y-3">
-                  <Skeleton className="h-5 w-40" />
-                  <Skeleton className="h-7 w-64" />
-                  <Skeleton className="h-4 w-32" />
+        {/* ── Confirm Order Card ──────────────────────────────────────────── */}
+        {urlAction === "new" && urlItemId && (
+          <div style={{ marginBottom: 48 }}>
+            {loadingItem ? (
+              <div
+                style={{
+                  borderRadius: 16,
+                  border: "1px solid rgba(99,102,241,0.15)",
+                  background: "rgba(255,255,255,0.75)",
+                  backdropFilter: "blur(12px)",
+                  padding: 32,
+                  boxShadow: "0 8px 32px rgba(99,102,241,0.15), 0 0 1px rgba(255,255,255,0.6) inset",
+                }}
+              >
+                <div style={{ display: "flex", gap: 24 }}>
+                  <Skeleton className="h-32 w-32 rounded-xl" />
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-6 w-64" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : pendingItem ? (
-            <div className="rounded-2xl border-2 border-amber-400/60 bg-gradient-to-br from-amber-50 via-white to-violet-50 shadow-lg overflow-hidden">
-              {/* Header stripe */}
-              <div className="bg-gradient-to-r from-amber-500 to-violet-600 px-6 py-3 flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-white" />
-                <span className="text-white font-semibold text-sm">Confirm Your Order</span>
-              </div>
+            ) : pendingItem ? (
+              <div
+                style={{
+                  borderRadius: 16,
+                  border: "1px solid rgba(99,102,241,0.2)",
+                  background: "rgba(255,255,255,0.8)",
+                  backdropFilter: "blur(12px)",
+                  overflow: "hidden",
+                  boxShadow: "0 12px 40px rgba(99,102,241,0.18), 0 0 1px rgba(255,255,255,0.6) inset",
+                  transition: "all 0.3s ease",
+                  animation: "slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
+              >
+                {/* Top accent gradient bar */}
+                <div
+                  style={{
+                    height: 5,
+                    background: "linear-gradient(90deg, #6366F1 0%, #7C3AED 50%, #A855F7 100%)",
+                  }}
+                />
 
-              <div className="p-6 sm:p-8">
-                <div className="flex flex-col sm:flex-row gap-6">
-                  {/* Item image */}
-                  <div className="w-full sm:w-40 h-40 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
-                    {pendingItem.images?.[0] ? (
-                      <img src={pendingItem.images[0]} alt={pendingItem.name || ""} className="w-full h-full object-cover" />
-                    ) : (
-                      <Package className="h-12 w-12 text-slate-300" />
-                    )}
-                  </div>
+                {/* Header row */}
+                <div
+                  style={{
+                    padding: "18px 28px",
+                    borderBottom: "1px solid rgba(229,231,235,0.6)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  <ShieldCheck style={{ width: 18, height: 18, color: "#6366F1", strokeWidth: 1.8 }} />
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#111827", letterSpacing: "0.01em" }}>
+                    Confirm Your Order
+                  </span>
+                </div>
 
-                  {/* Item info */}
-                  <div className="flex-1 min-w-0">
-                    {pendingItem.category && (
-                      <Badge className="bg-violet-100 text-violet-700 hover:bg-violet-100 border-0 mb-2">
-                        <Tag className="h-3 w-3 mr-1" />{pendingItem.category}
-                      </Badge>
-                    )}
-                    <h3 className="text-xl font-bold text-slate-900 leading-tight">
-                      {pendingItem.name || pendingItem.description}
-                    </h3>
-                    <p className="text-slate-500 text-sm mt-1">
-                      Item Code: <span className="font-mono text-slate-400">{pendingItem.itemId}</span>
-                    </p>
-                    {pendingItem.shortDescription && (
-                      <p className="text-slate-500 text-sm mt-2">{pendingItem.shortDescription}</p>
-                    )}
-
-                    {/* Price + Quantity */}
-                    <div className="mt-5 flex flex-col sm:flex-row items-start sm:items-end gap-4">
-                      {/* Quantity selector */}
-                      <div>
-                        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 block">Quantity</label>
-                        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-                          <Button
-                            variant="ghost" size="icon" className="h-9 w-9 rounded-md"
-                            onClick={() => setNewOrderQty((q) => Math.max(1, q - 1))}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="w-10 text-center text-lg font-bold text-slate-900">{newOrderQty}</span>
-                          <Button
-                            variant="ghost" size="icon" className="h-9 w-9 rounded-md"
-                            onClick={() => setNewOrderQty((q) => q + 1)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Price breakdown */}
-                      {unitPrice > 0 && (
-                        <div className="text-right">
-                          <p className="text-xs text-slate-400">
-                            LKR {unitPrice.toLocaleString()} × {newOrderQty}
-                          </p>
-                          <p className="text-2xl font-bold text-slate-900">
-                            LKR {(unitPrice * newOrderQty).toLocaleString()}
-                          </p>
-                        </div>
+                <div style={{ padding: "28px 28px 36px" }}>
+                  <div style={{ display: "flex", flexDirection: "row", gap: 28, flexWrap: "wrap" }}>
+                    {/* Item image */}
+                    <div
+                      style={{
+                        width: 160,
+                        height: 160,
+                        borderRadius: 14,
+                        overflow: "hidden",
+                        background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+                        border: "1px solid rgba(99,102,241,0.2)",
+                        flexShrink: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 8px 20px rgba(99,102,241,0.15)",
+                      }}
+                    >
+                      {pendingItem.images?.[0] ? (
+                        <img
+                          src={pendingItem.images[0]}
+                          alt={pendingItem.name || ""}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      ) : (
+                        <Package style={{ width: 40, height: 40, color: "#6366F1", strokeWidth: 1.5 }} />
                       )}
                     </div>
 
-                    {/* Confirm button */}
-                    <div className="mt-6 flex gap-3">
-                      <Button
-                        onClick={handleConfirmOrder}
-                        disabled={confirming}
-                        className="bg-gradient-to-r from-amber-500 to-violet-600 text-white border-0 shadow-md hover:from-amber-600 hover:to-violet-700 font-semibold h-11 px-8 text-base"
+                    {/* Item info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {pendingItem.category && (
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: "#4338CA",
+                            background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+                            borderRadius: 999,
+                            padding: "5px 12px",
+                            marginBottom: 12,
+                            letterSpacing: "0.02em",
+                            border: "1px solid rgba(99,102,241,0.2)",
+                          }}
+                        >
+                          <Tag style={{ width: 11, height: 11, strokeWidth: 2 }} />
+                          {pendingItem.category}
+                        </span>
+                      )}
+
+                      <h3
+                        style={{
+                          fontSize: 22,
+                          fontWeight: 800,
+                          color: "#111827",
+                          margin: 0,
+                          lineHeight: 1.3,
+                          letterSpacing: "-0.01em",
+                        }}
                       >
-                        {confirming ? (
-                          <><Loader2 className="h-4 w-4 animate-spin mr-2" />Placing Order…</>
-                        ) : (
-                          <><ShoppingCart className="h-4 w-4 mr-2" />Confirm Order</>
+                        {pendingItem.name || pendingItem.description}
+                      </h3>
+                      <p style={{ fontSize: 12, color: "#9CA3AF", marginTop: 4, fontFamily: "monospace", fontWeight: 500 }}>
+                        SKU: {pendingItem.itemId}
+                      </p>
+                      {pendingItem.shortDescription && (
+                        <p style={{ fontSize: 14, color: "#6B7280", marginTop: 10, lineHeight: 1.6, maxWidth: 380 }}>
+                          {pendingItem.shortDescription}
+                        </p>
+                      )}
+
+                      {/* Price + Quantity */}
+                      <div
+                        style={{
+                          marginTop: 24,
+                          display: "flex",
+                          alignItems: "flex-end",
+                          gap: 32,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {/* Quantity stepper */}
+                        <div>
+                          <label
+                            style={{
+                              display: "block",
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: "#6B7280",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.08em",
+                              marginBottom: 10,
+                            }}
+                          >
+                            Quantity
+                          </label>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0,
+                              border: "1.5px solid rgba(99,102,241,0.2)",
+                              borderRadius: 10,
+                              overflow: "hidden",
+                              height: 40,
+                              background: "rgba(255,255,255,0.6)",
+                              boxShadow: "0 2px 8px rgba(99,102,241,0.08) inset",
+                            }}
+                          >
+                            <button
+                              onClick={() => setNewOrderQty((q) => Math.max(1, q - 1))}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                background: "none",
+                                border: "none",
+                                borderRight: "1px solid rgba(99,102,241,0.15)",
+                                cursor: "pointer",
+                                color: "#6366F1",
+                                transition: "background 0.2s ease",
+                                fontWeight: 600,
+                              }}
+                              onMouseEnter={e => (e.currentTarget.style.background = "rgba(99,102,241,0.08)")}
+                              onMouseLeave={e => (e.currentTarget.style.background = "none")}
+                            >
+                              <Minus style={{ width: 16, height: 16, strokeWidth: 2 }} />
+                            </button>
+                            <span
+                              style={{
+                                width: 44,
+                                textAlign: "center",
+                                fontSize: 16,
+                                fontWeight: 700,
+                                color: "#111827",
+                              }}
+                            >
+                              {newOrderQty}
+                            </span>
+                            <button
+                              onClick={() => setNewOrderQty((q) => q + 1)}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                background: "none",
+                                border: "none",
+                                borderLeft: "1px solid rgba(99,102,241,0.15)",
+                                cursor: "pointer",
+                                color: "#6366F1",
+                                transition: "background 0.2s ease",
+                                fontWeight: 600,
+                              }}
+                              onMouseEnter={e => (e.currentTarget.style.background = "rgba(99,102,241,0.08)")}
+                              onMouseLeave={e => (e.currentTarget.style.background = "none")}
+                            >
+                              <Plus style={{ width: 16, height: 16, strokeWidth: 2 }} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Price */}
+                        {unitPrice > 0 && (
+                          <div>
+                            <p style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 4, fontWeight: 500 }}>
+                              LKR {unitPrice.toLocaleString()} × {newOrderQty}
+                            </p>
+                            <p style={{ fontSize: 24, fontWeight: 800, background: "linear-gradient(135deg, #111827 0%, #374151 100%)", backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0 }}>
+                              LKR {(unitPrice * newOrderQty).toLocaleString()}
+                            </p>
+                          </div>
                         )}
-                      </Button>
-                      <Link href="/">
-                        <Button variant="outline" className="h-11">
-                          Continue Shopping
-                        </Button>
-                      </Link>
+                      </div>
+
+                      {/* CTA buttons */}
+                      <div style={{ marginTop: 28, display: "flex", gap: 12, flexWrap: "wrap" }}>
+                        <button
+                          onClick={handleConfirmOrder}
+                          disabled={confirming}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 8,
+                            padding: "12px 24px",
+                            background: confirming ? "linear-gradient(135deg, #A5B4FC 0%, #C7D2FE 100%)" : "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)",
+                            color: "#FFFFFF",
+                            border: "none",
+                            borderRadius: 11,
+                            fontSize: 14,
+                            fontWeight: 700,
+                            cursor: confirming ? "not-allowed" : "pointer",
+                            transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                            letterSpacing: "0.01em",
+                            boxShadow: "0 6px 16px rgba(99,102,241,0.3)",
+                          }}
+                          onMouseEnter={e => { if (!confirming) { e.currentTarget.style.background = "linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 24px rgba(99,102,241,0.40)"; } }}
+                          onMouseLeave={e => { if (!confirming) { e.currentTarget.style.background = "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(99,102,241,0.3)"; } }}
+                        >
+                          {confirming ? (
+                            <><Loader2 style={{ width: 16, height: 16, strokeWidth: 2 }} className="animate-spin" />Placing Order…</>
+                          ) : (
+                            <><ShoppingCart style={{ width: 16, height: 16, strokeWidth: 2 }} />Confirm Order</>
+                          )}
+                        </button>
+                        <Link href="/">
+                          <button
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              padding: "12px 24px",
+                              background: "rgba(255,255,255,0.7)",
+                              color: "#374151",
+                              border: "1.5px solid rgba(99,102,241,0.2)",
+                              borderRadius: 11,
+                              fontSize: 14,
+                              fontWeight: 700,
+                              cursor: "pointer",
+                              transition: "all 0.25s ease",
+                              backdropFilter: "blur(8px)",
+                            }}
+                            onMouseEnter={e => {
+                              (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.9)";
+                              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+                              (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 16px rgba(99,102,241,0.12)";
+                            }}
+                            onMouseLeave={e => {
+                              (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.7)";
+                              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
+                              (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+                            }}
+                          >
+                            Continue Shopping
+                          </button>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            ) : (
+              <div
+                style={{
+                  borderRadius: 16,
+                  border: "1.5px dashed rgba(239,68,68,0.4)",
+                  background: "linear-gradient(135deg, rgba(254,242,242,0.8) 0%, rgba(253,232,232,0.8) 100%)",
+                  backdropFilter: "blur(8px)",
+                  padding: 56,
+                  textAlign: "center",
+                }}
+              >
+                <Package style={{ width: 48, height: 48, color: "rgba(239,68,68,0.4)", margin: "0 auto 16px", strokeWidth: 1.5 }} />
+                <p style={{ fontWeight: 700, color: "#DC2626", margin: 0, fontSize: 16 }}>Item not found</p>
+                <Link href="/" style={{ fontSize: 14, color: "#6366F1", textDecoration: "none", display: "inline-block", marginTop: 12, fontWeight: 600 }}>
+                  ← Back to shop
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Order History ─────────────────────────────────────────────────── */}
+        <div>
+          {/* Section header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 20,
+              paddingBottom: 18,
+              borderBottom: "2px solid rgba(99,102,241,0.15)",
+            }}
+          >
+            <Calendar style={{ width: 20, height: 20, color: "#6366F1", strokeWidth: 1.8 }} />
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#111827", margin: 0, letterSpacing: "-0.01em" }}>
+              Order History
+            </h2>
+            {!loading && orders.length > 0 && (
+              <span
+                style={{
+                  marginLeft: 8,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  background: "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)",
+                  borderRadius: 999,
+                  padding: "4px 10px",
+                  boxShadow: "0 2px 6px rgba(99,102,241,0.25)",
+                }}
+              >
+                {orders.length}
+              </span>
+            )}
+          </div>
+
+          {loading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : orders.length === 0 ? (
+            <div
+              style={{
+                borderRadius: 16,
+                border: "1.5px solid rgba(99,102,241,0.1)",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(249,250,251,0.7) 100%)",
+                backdropFilter: "blur(8px)",
+                padding: "72px 40px",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 16,
+                  background: "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.08) 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 20px",
+                }}
+              >
+                <ShoppingBag style={{ width: 28, height: 28, color: "#6366F1", strokeWidth: 1.5 }} />
+              </div>
+              <p style={{ fontWeight: 700, color: "#111827", margin: 0, fontSize: 17 }}>No orders yet</p>
+              <p style={{ fontSize: 14, color: "#6B7280", marginTop: 8 }}>Items you order will appear here</p>
+              <Link href="/">
+                <button
+                  style={{
+                    marginTop: 24,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "12px 28px",
+                    background: "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: 11,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    boxShadow: "0 6px 16px rgba(99,102,241,0.3)",
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)";
+                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 10px 24px rgba(99,102,241,0.40)";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg, #6366F1 0%, #7C3AED 100%)";
+                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 16px rgba(99,102,241,0.3)";
+                  }}
+                >
+                  Start Shopping
+                </button>
+              </Link>
             </div>
           ) : (
-            <div className="rounded-2xl border-2 border-dashed border-red-200 bg-red-50/50 p-8 text-center text-red-500">
-              <Package className="h-10 w-10 mx-auto mb-2 opacity-40" />
-              <p className="font-medium">Item not found</p>
-              <Link href="/" className="text-sm text-violet-600 hover:underline mt-1 inline-block">← Back to shop</Link>
-            </div>
-          )}
-        </div>
-      )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {orders.map((order) => {
+                const prog = findProgram(order.itemId);
+                const qty = getQty(order.id);
+                const price = prog?.price ?? 0;
+                const status = getStatus(order.id);
 
-      {/* ── Order History ────────────────────────────────────────────────── */}
-      <div>
-        <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-violet-600" />
-          Order History
-        </h2>
-
-        {loading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-xl" />
-            ))}
-          </div>
-        ) : orders.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center">
-            <ShoppingBag className="h-12 w-12 mx-auto text-slate-300 mb-3" />
-            <p className="text-slate-500 font-medium">No orders yet</p>
-            <p className="text-sm text-slate-400 mt-1">Items you order will appear here</p>
-            <Link href="/">
-              <Button className="mt-4 bg-gradient-to-r from-amber-500 to-violet-600 text-white border-0">
-                Start Shopping
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {orders.map((order) => {
-              const prog = findProgram(order.itemId);
-              const qty = getQty(order.id);
-              const price = prog?.price ?? 0;
-              const status = getStatus(order.id);
-
-              return (
-                <div
-                  key={order.id}
-                  className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col sm:flex-row gap-4">
+                return (
+                  <div
+                    key={order.id}
+                    style={{
+                      borderRadius: 12,
+                      border: "1px solid rgba(99,102,241,0.15)",
+                      background: "rgba(255,255,255,0.7)",
+                      backdropFilter: "blur(8px)",
+                      padding: "18px 22px",
+                      display: "flex",
+                      gap: 16,
+                      alignItems: "center",
+                      transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                      cursor: "default",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(99,102,241,0.15), 0 0 1px rgba(255,255,255,0.5) inset";
+                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+                      (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.85)";
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 8px rgba(0,0,0,0.03)";
+                      (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                      (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.7)";
+                    }}
+                  >
                     {/* Thumbnail */}
-                    <div className="h-16 w-16 rounded-lg overflow-hidden bg-slate-100 border shrink-0 flex items-center justify-center">
+                    <div
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 11,
+                        overflow: "hidden",
+                        background: "linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)",
+                        border: "1px solid rgba(99,102,241,0.15)",
+                        flexShrink: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 2px 6px rgba(99,102,241,0.12)",
+                      }}
+                    >
                       {prog?.images?.[0] ? (
-                        <img src={prog.images[0]} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={prog.images[0]}
+                          alt=""
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
                       ) : (
-                        <Package className="h-7 w-7 text-slate-300" />
+                        <Package style={{ width: 24, height: 24, color: "#6366F1", strokeWidth: 1.5 }} />
                       )}
                     </div>
 
                     {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-semibold text-slate-900">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p
+                            style={{
+                              fontWeight: 700,
+                              color: "#111827",
+                              margin: 0,
+                              fontSize: 14,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
                             {prog?.name || prog?.description || order.itemId}
                           </p>
-                          <p className="text-xs text-slate-400 font-mono">#{order.id} · {order.itemId}</p>
+                          <p style={{ fontSize: 11, color: "#9CA3AF", fontFamily: "monospace", marginTop: 3, fontWeight: 500 }}>
+                            #{order.id} · {order.itemId}
+                          </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                           <StatusBadge status={status} />
                           {(status === "completed" || status === "cancelled") && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            <button
                               onClick={() => handleDeleteOrder(order.id)}
                               title="Remove order"
+                              style={{
+                                width: 32,
+                                height: 32,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                border: "1px solid rgba(239,68,68,0.2)",
+                                background: "rgba(254,242,242,0.6)",
+                                borderRadius: 8,
+                                cursor: "pointer",
+                                color: "#EF4444",
+                                transition: "all 0.2s ease",
+                                backdropFilter: "blur(4px)",
+                              }}
+                              onMouseEnter={e => {
+                                (e.currentTarget as HTMLButtonElement).style.background = "rgba(254,242,242,0.9)";
+                                (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 12px rgba(239,68,68,0.15)";
+                              }}
+                              onMouseLeave={e => {
+                                (e.currentTarget as HTMLButtonElement).style.background = "rgba(254,242,242,0.6)";
+                                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+                              }}
                             >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                              <Trash2 style={{ width: 14, height: 14, strokeWidth: 1.8 }} />
+                            </button>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-2 text-sm text-slate-500">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5" />
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          alignItems: "center",
+                          gap: "4px 20px",
+                          marginTop: 8,
+                          fontSize: 13,
+                          color: "#6B7280",
+                        }}
+                      >
+                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <Calendar style={{ width: 13, height: 13, strokeWidth: 1.5 }} />
                           {order.date}
                         </span>
-                        <span>Qty: <strong className="text-slate-700">{qty}</strong></span>
+                        <span>
+                          Qty: <strong style={{ color: "#374151" }}>{qty}</strong>
+                        </span>
                         {price > 0 && (
-                          <span className="font-semibold text-slate-900">
+                          <span style={{ fontWeight: 700, color: "#111827", fontSize: 14 }}>
                             LKR {(price * qty).toLocaleString()}
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -426,9 +849,21 @@ function MyOrdersContent() {
 export default function MyOrdersPage() {
   return (
     <Suspense fallback={
-      <div className="max-w-5xl mx-auto px-4 py-16 text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-violet-500" />
-        <p className="text-sm text-slate-400 mt-3">Loading your orders…</p>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "60vh",
+          gap: 12,
+        }}
+      >
+        <Loader2
+          style={{ width: 28, height: 28, color: "#6366F1", strokeWidth: 1.5 }}
+          className="animate-spin"
+        />
+        <p style={{ fontSize: 13, color: "#9CA3AF" }}>Loading your orders…</p>
       </div>
     }>
       <MyOrdersContent />

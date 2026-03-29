@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, Eye, EyeOff, Loader2, UserCheck, Shield } from "lucide-react";
+import { ShoppingCart, Eye, EyeOff, Loader2, UserCheck, Shield, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,106 +47,264 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-violet-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-amber-500 to-violet-600 px-8 py-7 text-white">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                <ShoppingCart className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">NexaShopping</h1>
-                <p className="text-amber-100 text-xs">Point of Sale System</p>
-              </div>
+    <div
+      className="min-h-screen flex"
+      style={{
+        background: "#F9FAFB",
+        fontFamily: "'DM Sans', system-ui, -apple-system, sans-serif",
+      }}
+    >
+      {/* Left panel — decorative */}
+      <div
+        className="hidden lg:flex lg:w-[48%] xl:w-[52%] flex-col justify-between p-12 relative overflow-hidden"
+        style={{ background: "#0F0F11" }}
+      >
+        {/* Subtle grid texture */}
+        <div
+          style={{
+            position: "absolute", inset: 0,
+            backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+        {/* Glow orb */}
+        <div
+          style={{
+            position: "absolute", top: "30%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 520, height: 520,
+            background: "radial-gradient(ellipse at center, rgba(99,102,241,0.18) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Brand mark */}
+        <div className="relative flex items-center gap-3">
+          <div
+            className="h-9 w-9 rounded-xl flex items-center justify-center"
+            style={{ background: "#6366F1" }}
+          >
+            <ShoppingCart className="h-4 w-4 text-white" />
+          </div>
+          <span style={{ color: "#fff", fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em" }}>
+            NexaShopping
+          </span>
+        </div>
+
+        {/* Centered quote / visual */}
+        <div className="relative text-center">
+          <div
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "6px 14px", borderRadius: 999,
+              background: "rgba(99,102,241,0.15)",
+              border: "1px solid rgba(99,102,241,0.3)",
+              marginBottom: 28,
+            }}
+          >
+            <Sparkles className="h-3 w-3" style={{ color: "#818CF8" }} />
+            <span style={{ color: "#818CF8", fontSize: 12, fontWeight: 500 }}>Seamless commerce</span>
+          </div>
+          <h2
+            style={{
+              color: "#fff", fontSize: 38, fontWeight: 700,
+              lineHeight: 1.15, letterSpacing: "-0.03em",
+              margin: "0 auto", maxWidth: 340,
+            }}
+          >
+            Your store,<br />
+            <span style={{ color: "#6366F1" }}>fully in control.</span>
+          </h2>
+          <p style={{ color: "#71717A", fontSize: 15, marginTop: 16, maxWidth: 320, margin: "16px auto 0", lineHeight: 1.6 }}>
+            Manage products, track orders, and delight customers — all from one place.
+          </p>
+        </div>
+
+        {/* Bottom stats */}
+        <div className="relative flex gap-8">
+          {[
+            { label: "Orders managed", value: "12,400+" },
+            { label: "Uptime", value: "99.9%" },
+            { label: "Users", value: "2,800+" },
+          ].map((s) => (
+            <div key={s.label}>
+              <p style={{ color: "#fff", fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", margin: 0 }}>{s.value}</p>
+              <p style={{ color: "#52525B", fontSize: 12, margin: "3px 0 0" }}>{s.label}</p>
             </div>
-            <p className="mt-3 text-sm text-white/80">
-              {from ? "Sign in to continue your order" : "Welcome back — sign in to continue"}
+          ))}
+        </div>
+      </div>
+
+      {/* Right panel — form */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 lg:px-16">
+        {/* Mobile logo */}
+        <div className="lg:hidden flex items-center gap-2.5 mb-10">
+          <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: "#6366F1" }}>
+            <ShoppingCart className="h-4 w-4 text-white" />
+          </div>
+          <span style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>NexaShopping</span>
+        </div>
+
+        <div className="w-full max-w-[400px]">
+          {/* Heading */}
+          <div className="mb-8">
+            <h1 style={{ fontSize: 26, fontWeight: 700, color: "#111827", letterSpacing: "-0.025em", margin: "0 0 6px" }}>
+              {from ? "Continue your order" : "Welcome back"}
+            </h1>
+            <p style={{ color: "#6B7280", fontSize: 14, margin: 0 }}>
+              Sign in to your NexaShopping account
             </p>
           </div>
 
-          {/* Credential hints */}
-          <div className="px-8 pt-5 flex gap-3">
-            <div className="flex-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <Shield className="h-3.5 w-3.5 text-amber-600" />
-                <span className="text-[11px] font-bold text-amber-700">Admin</span>
+          {/* Role hints */}
+          <div className="flex gap-3 mb-7">
+            <div
+              className="flex-1 flex items-center gap-2.5 px-3.5 py-3 rounded-xl"
+              style={{ border: "1px solid #E5E7EB", background: "#FAFAFA" }}
+            >
+              <div
+                className="h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: "#EEF2FF" }}
+              >
+                <Shield className="h-3.5 w-3.5" style={{ color: "#6366F1" }} />
               </div>
-              <p className="text-[10px] text-amber-600 font-mono">Login as an Administrator</p>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "#374151", margin: 0 }}>Admin</p>
+                <p style={{ fontSize: 11, color: "#9CA3AF", margin: 0 }}>Dashboard access</p>
+              </div>
             </div>
-            <div className="flex-1 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2.5">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <UserCheck className="h-3.5 w-3.5 text-violet-600" />
-                <span className="text-[11px] font-bold text-violet-700">User</span>
+            <div
+              className="flex-1 flex items-center gap-2.5 px-3.5 py-3 rounded-xl"
+              style={{ border: "1px solid #E5E7EB", background: "#FAFAFA" }}
+            >
+              <div
+                className="h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: "#F0FDF4" }}
+              >
+                <UserCheck className="h-3.5 w-3.5" style={{ color: "#22C55E" }} />
               </div>
-              <p className="text-[10px] text-violet-600">Login as a Customer</p>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "#374151", margin: 0 }}>Customer</p>
+                <p style={{ fontSize: 11, color: "#9CA3AF", margin: 0 }}>Shop & order</p>
+              </div>
             </div>
           </div>
 
           {/* Form */}
-          <div className="px-8 py-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-slate-700 font-medium">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                  className="h-11 border-slate-200 focus:border-violet-400"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPwd ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                    className="h-11 pr-10 border-slate-200 focus:border-violet-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPwd((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-2.5 text-sm text-red-600">
-                  {error}
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-11 bg-gradient-to-r from-amber-500 to-violet-600 hover:from-amber-600 hover:to-violet-700 text-white font-semibold shadow-md"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label
+                htmlFor="email"
+                style={{ fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 }}
               >
-                {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                {loading ? "Signing in…" : "Sign In"}
-              </Button>
-            </form>
+                Email address
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                style={{
+                  height: 42, borderColor: "#E5E7EB", borderRadius: 10,
+                  fontSize: 14, paddingLeft: 12,
+                }}
+                className="focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+              />
+            </div>
 
-            <p className="mt-5 text-center text-sm text-slate-500">
+            <div>
+              <Label
+                htmlFor="password"
+                style={{ fontSize: 13, fontWeight: 500, color: "#374151", display: "block", marginBottom: 6 }}
+              >
+                Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPwd ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  style={{
+                    height: 42, borderColor: "#E5E7EB", borderRadius: 10,
+                    fontSize: 14, paddingLeft: 12, paddingRight: 40,
+                  }}
+                  className="focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  style={{ color: "#9CA3AF", transition: "color 0.15s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#6B7280")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "#9CA3AF")}
+                >
+                  {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div
+                className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm"
+                style={{ background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626" }}
+              >
+                <span style={{ marginTop: 1 }}>⚠</span>
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 font-semibold transition-all"
+              style={{
+                height: 44,
+                background: loading ? "#A5B4FC" : "#6366F1",
+                color: "#fff",
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 600,
+                border: "none",
+                cursor: loading ? "not-allowed" : "pointer",
+                transform: "scale(1)",
+                transition: "background 0.15s, transform 0.1s",
+              }}
+              onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#4F46E5"; }}
+              onMouseLeave={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "#6366F1"; }}
+              onMouseDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.97)"; }}
+              onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
+            >
+              {loading
+                ? <><Loader2 className="h-4 w-4 animate-spin" /> Signing in…</>
+                : <><span>Sign In</span><ArrowRight className="h-4 w-4" /></>
+              }
+            </Button>
+          </form>
+
+          <div
+            style={{ borderTop: "1px solid #F3F4F6", marginTop: 24, paddingTop: 20 }}
+            className="text-center"
+          >
+            <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0 }}>
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-semibold text-violet-600 hover:text-violet-700 underline underline-offset-2">
-                Register here
+              <Link
+                href="/register"
+                style={{ color: "#6366F1", fontWeight: 600, textDecoration: "none" }}
+                onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.color = "#4F46E5")}
+                onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.color = "#6366F1")}
+              >
+                Create one free →
               </Link>
             </p>
           </div>
         </div>
-        <p className="mt-4 text-center text-xs text-slate-400">
+
+        <p style={{ marginTop: 40, fontSize: 11, color: "#D1D5DB", textAlign: "center" }}>
           NexaShopping POS © {new Date().getFullYear()} · All rights reserved
         </p>
       </div>

@@ -26,38 +26,62 @@ function saveStatuses(s: Record<string, OrderStatus>) {
   localStorage.setItem(STATUS_KEY, JSON.stringify(s));
 }
 
-const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; icon: React.ElementType }> = {
-  pending: { label: "Pending", color: "bg-amber-100 text-amber-700", icon: Clock },
-  accepted: { label: "Accepted", color: "bg-blue-100 text-blue-700", icon: CheckCircle2 },
-  shipped: { label: "Shipped", color: "bg-violet-100 text-violet-700", icon: Truck },
-  completed: { label: "Completed", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
-  cancelled: { label: "Cancelled", color: "bg-red-100 text-red-600", icon: XCircle },
-  refunded: { label: "Refunded", color: "bg-slate-100 text-slate-600", icon: RotateCcw },
+const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; dot: string; icon: React.ElementType }> = {
+  pending:   { label: "Pending",   color: "bg-amber-50 text-amber-700 border border-amber-200",       dot: "#F59E0B", icon: Clock        },
+  accepted:  { label: "Accepted",  color: "bg-blue-50 text-blue-700 border border-blue-200",          dot: "#3B82F6", icon: CheckCircle2 },
+  shipped:   { label: "Shipped",   color: "bg-indigo-50 text-indigo-700 border border-indigo-200",    dot: "#6366F1", icon: Truck        },
+  completed: { label: "Completed", color: "bg-emerald-50 text-emerald-700 border border-emerald-200", dot: "#22C55E", icon: CheckCircle2 },
+  cancelled: { label: "Cancelled", color: "bg-red-50 text-red-600 border border-red-200",             dot: "#EF4444", icon: XCircle      },
+  refunded:  { label: "Refunded",  color: "bg-slate-50 text-slate-600 border border-slate-200",       dot: "#9CA3AF", icon: RotateCcw    },
 };
 
 function StatusBadge({ status }: { status: OrderStatus }) {
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.color}`}>
-      <Icon className="h-3 w-3" /> {cfg.label}
+    <span
+      className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full ${cfg.color}`}
+      style={{ fontWeight: 600, letterSpacing: "0.02em" }}
+    >
+      <Icon className="h-3 w-3" style={{ strokeWidth: 1.5 }} />
+      {cfg.label}
     </span>
   );
 }
 
-// Action buttons for each status transition
 const STATUS_ACTIONS: Array<{
   status: OrderStatus;
   label: string;
   icon: React.ElementType;
-  className: string;
+  style: React.CSSProperties;
+  hoverBg: string;
 }> = [
-    { status: "accepted", label: "Accept", icon: CheckCircle2, className: "bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200" },
-    { status: "shipped", label: "Ship", icon: Truck, className: "bg-violet-50 text-violet-700 hover:bg-violet-100 border-violet-200" },
-    { status: "completed", label: "Complete", icon: CheckCircle2, className: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200" },
-    { status: "cancelled", label: "Cancel", icon: XCircle, className: "bg-red-50 text-red-600 hover:bg-red-100 border-red-200" },
-    { status: "refunded", label: "Refund", icon: RotateCcw, className: "bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200" },
-  ];
+  {
+    status: "accepted", label: "Accept", icon: CheckCircle2,
+    style: { background: "#EFF6FF", color: "#1D4ED8", border: "1px solid #BFDBFE" },
+    hoverBg: "#DBEAFE",
+  },
+  {
+    status: "shipped", label: "Ship", icon: Truck,
+    style: { background: "#EEF2FF", color: "#4338CA", border: "1px solid #C7D2FE" },
+    hoverBg: "#E0E7FF",
+  },
+  {
+    status: "completed", label: "Complete", icon: CheckCircle2,
+    style: { background: "#F0FDF4", color: "#15803D", border: "1px solid #BBF7D0" },
+    hoverBg: "#DCFCE7",
+  },
+  {
+    status: "cancelled", label: "Cancel", icon: XCircle,
+    style: { background: "#FEF2F2", color: "#DC2626", border: "1px solid #FECACA" },
+    hoverBg: "#FEE2E2",
+  },
+  {
+    status: "refunded", label: "Refund", icon: RotateCcw,
+    style: { background: "#F9FAFB", color: "#6B7280", border: "1px solid #E5E7EB" },
+    hoverBg: "#F3F4F6",
+  },
+];
 
 function AdminOrdersContent() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -95,7 +119,6 @@ function AdminOrdersContent() {
     toast.success(`Order #${id} marked as ${s}`);
   };
 
-  // Filter
   const filtered = orders.filter((o) => {
     const name = (o.user?.name ?? o.userId).toLowerCase();
     const matchSearch = name.includes(search.toLowerCase()) ||
@@ -105,7 +128,6 @@ function AdminOrdersContent() {
     return matchSearch && matchStatus;
   });
 
-  // Stats
   const counts = orders.reduce((acc, o) => {
     const s = getStatus(o.id ?? "");
     acc[s] = (acc[s] ?? 0) + 1;
@@ -113,66 +135,209 @@ function AdminOrdersContent() {
   }, {} as Record<string, number>);
 
   return (
-    <div className="space-y-5">
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+    <div
+      style={{
+        fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+      }}
+    >
+      {/* ── Stat chips ─────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+          gap: 12,
+        }}
+      >
         {(Object.keys(STATUS_CONFIG) as OrderStatus[]).map((s) => {
           const cfg = STATUS_CONFIG[s];
           const Icon = cfg.icon;
+          const active = statusFilter === s;
           return (
             <button
               key={s}
               onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
-              className={`rounded-xl border p-3 text-left transition-all hover:shadow-sm ${statusFilter === s ? "ring-2 ring-violet-400 shadow-sm" : "bg-white"
-                }`}
+              style={{
+                borderRadius: 10,
+                border: active ? `1.5px solid #6366F1` : "1px solid #E5E7EB",
+                background: active ? "#EEF2FF" : "#FFFFFF",
+                padding: "12px 14px",
+                textAlign: "left",
+                cursor: "pointer",
+                transition: "box-shadow 0.18s ease, border-color 0.18s ease",
+                boxShadow: active ? "0 0 0 3px rgba(99,102,241,0.12)" : "none",
+              }}
+              onMouseEnter={e => {
+                if (!active) (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)";
+              }}
+              onMouseLeave={e => {
+                if (!active) (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+              }}
             >
-              <div className="flex items-center gap-1.5 mb-1">
-                <Icon className="h-3.5 w-3.5 opacity-60" />
-                <span className="text-[11px] text-slate-500 font-medium">{cfg.label}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: cfg.dot,
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: "#6B7280",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {cfg.label}
+                </span>
               </div>
-              <p className="text-xl font-bold text-slate-900">{counts[s] ?? 0}</p>
+              <p
+                style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: "#111827",
+                  margin: 0,
+                  lineHeight: 1,
+                }}
+              >
+                {counts[s] ?? 0}
+              </p>
             </button>
           );
         })}
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <div className="flex gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input className="pl-9" placeholder="Search orders…" value={search} onChange={(e) => setSearch(e.target.value)} />
+      {/* ── Toolbar ─────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 12,
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", gap: 8, flex: 1, minWidth: 0 }}>
+          {/* Search */}
+          <div style={{ position: "relative", width: 260, maxWidth: "100%" }}>
+            <Search
+              style={{
+                position: "absolute",
+                left: 10,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 15,
+                height: 15,
+                color: "#9CA3AF",
+                strokeWidth: 1.5,
+                pointerEvents: "none",
+              }}
+            />
+            <Input
+              style={{
+                paddingLeft: 34,
+                height: 38,
+                fontSize: 13,
+                borderRadius: 8,
+                border: "1px solid #E5E7EB",
+                background: "#FFFFFF",
+              }}
+              placeholder="Search orders…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
+
+          {/* Status filter */}
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "all" | OrderStatus)}>
-            <SelectTrigger className="w-36">
-              <Filter className="h-3.5 w-3.5 mr-1.5 text-slate-400" />
+            <SelectTrigger
+              style={{
+                width: 148,
+                height: 38,
+                fontSize: 13,
+                borderRadius: 8,
+                border: "1px solid #E5E7EB",
+                background: "#FFFFFF",
+              }}
+            >
+              <Filter style={{ width: 13, height: 13, color: "#9CA3AF", marginRight: 6, strokeWidth: 1.5 }} />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               {(Object.keys(STATUS_CONFIG) as OrderStatus[]).map((s) => (
                 <SelectItem key={s} value={s}>{STATUS_CONFIG[s].label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <Button variant="outline" size="sm" onClick={refresh} className="gap-2 shrink-0">
-          <RefreshCw className="h-3.5 w-3.5" /> Refresh
-        </Button>
+
+        {/* Refresh */}
+        <button
+          onClick={refresh}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "8px 14px",
+            background: "#FFFFFF",
+            border: "1px solid #E5E7EB",
+            borderRadius: 8,
+            fontSize: 13,
+            fontWeight: 500,
+            color: "#374151",
+            cursor: "pointer",
+            transition: "background 0.18s ease",
+            flexShrink: 0,
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = "#F3F4F6")}
+          onMouseLeave={e => (e.currentTarget.style.background = "#FFFFFF")}
+        >
+          <RefreshCw style={{ width: 14, height: 14, strokeWidth: 1.5, color: "#6B7280" }} />
+          Refresh
+        </button>
       </div>
 
-      {/* Table */}
-      <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+      {/* ── Table ───────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          borderRadius: 12,
+          border: "1px solid #E5E7EB",
+          background: "#FFFFFF",
+          overflow: "hidden",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        }}
+      >
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/80">
-              <TableHead className="w-12">#</TableHead>
-              <TableHead>Item</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right min-w-[220px]">Update Status</TableHead>
+            <TableRow style={{ background: "#F9FAFB" }}>
+              <TableHead style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", letterSpacing: "0.06em", textTransform: "uppercase", width: 56 }}>
+                #
+              </TableHead>
+              <TableHead style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Item
+              </TableHead>
+              <TableHead style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Customer
+              </TableHead>
+              <TableHead style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Date
+              </TableHead>
+              <TableHead style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Price
+              </TableHead>
+              <TableHead style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                Status
+              </TableHead>
+              <TableHead style={{ fontSize: 11, fontWeight: 600, color: "#6B7280", letterSpacing: "0.06em", textTransform: "uppercase", textAlign: "right", minWidth: 240 }}>
+                Update Status
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -180,15 +345,33 @@ function AdminOrdersContent() {
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
                   {Array.from({ length: 7 }).map((__, j) => (
-                    <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>
+                    <TableCell key={j}>
+                      <Skeleton className="h-4 w-full rounded" />
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-slate-400">
-                  <Package className="h-10 w-10 mx-auto mb-2 opacity-20" />
-                  No orders found
+                <TableCell colSpan={7}>
+                  <div style={{ textAlign: "center", padding: "48px 0" }}>
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 12,
+                        background: "#F3F4F6",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto 12px",
+                      }}
+                    >
+                      <Package style={{ width: 22, height: 22, color: "#D1D5DB", strokeWidth: 1.5 }} />
+                    </div>
+                    <p style={{ fontWeight: 600, color: "#374151", margin: 0, fontSize: 14 }}>No orders found</p>
+                    <p style={{ fontSize: 13, color: "#9CA3AF", marginTop: 4 }}>Try adjusting your search or filter</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -196,46 +379,140 @@ function AdminOrdersContent() {
                 const item = items[order.itemId];
                 const status = getStatus(order.id ?? "");
                 return (
-                  <TableRow key={order.id} className="hover:bg-slate-50/60">
-                    <TableCell className="font-mono text-xs text-slate-400">#{order.id}</TableCell>
+                  <TableRow
+                    key={order.id}
+                    style={{ transition: "background 0.18s ease" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "#FAFAFA")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  >
+                    {/* ID */}
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-slate-100 overflow-hidden flex items-center justify-center shrink-0">
+                      <span style={{ fontSize: 11, fontFamily: "monospace", color: "#9CA3AF" }}>
+                        #{order.id}
+                      </span>
+                    </TableCell>
+
+                    {/* Item */}
+                    <TableCell>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 8,
+                            overflow: "hidden",
+                            background: "#F3F4F6",
+                            border: "1px solid #E5E7EB",
+                            flexShrink: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
                           {item?.images?.[0] ? (
-                            <img src={item.images[0]} alt="" className="w-full h-full object-cover" />
+                            <img
+                              src={item.images[0]}
+                              alt=""
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
                           ) : (
-                            <Package className="h-4 w-4 text-slate-300" />
+                            <Package style={{ width: 16, height: 16, color: "#D1D5DB", strokeWidth: 1.5 }} />
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-slate-900 leading-tight">
+                          <p style={{ fontSize: 13, fontWeight: 600, color: "#111827", margin: 0, lineHeight: 1.3 }}>
                             {item?.name || item?.description || order.itemId}
                           </p>
-                          <Badge variant="outline" className="font-mono text-[10px] mt-0.5">{order.itemId}</Badge>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontFamily: "monospace",
+                              color: "#6B7280",
+                              background: "#F3F4F6",
+                              borderRadius: 4,
+                              padding: "1px 5px",
+                              border: "1px solid #E5E7EB",
+                              display: "inline-block",
+                              marginTop: 3,
+                            }}
+                          >
+                            {order.itemId}
+                          </span>
                         </div>
                       </div>
                     </TableCell>
+
+                    {/* Customer */}
                     <TableCell>
-                      <p className="text-sm font-medium text-slate-900">{order.user?.name ?? order.userId}</p>
-                      <p className="text-xs text-slate-400 font-mono">{order.userId}</p>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: "#111827", margin: 0 }}>
+                        {order.user?.name ?? order.userId}
+                      </p>
+                      <p style={{ fontSize: 11, color: "#9CA3AF", fontFamily: "monospace", marginTop: 1 }}>
+                        {order.userId}
+                      </p>
                     </TableCell>
-                    <TableCell className="text-sm text-slate-600">{order.date}</TableCell>
+
+                    {/* Date */}
+                    <TableCell>
+                      <span style={{ fontSize: 13, color: "#6B7280" }}>{order.date}</span>
+                    </TableCell>
+
+                    {/* Price */}
                     <TableCell>
                       {item?.price != null ? (
-                        <span className="text-sm font-bold text-slate-800">LKR {Number(item.price).toLocaleString()}</span>
-                      ) : <span className="text-slate-300 text-xs">—</span>}
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+                          LKR {Number(item.price).toLocaleString()}
+                        </span>
+                      ) : (
+                        <span style={{ color: "#D1D5DB", fontSize: 13 }}>—</span>
+                      )}
                     </TableCell>
-                    <TableCell><StatusBadge status={status} /></TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1 flex-wrap">
-                        {STATUS_ACTIONS.map(({ status: s, label, icon: Icon, className }) => (
+
+                    {/* Status */}
+                    <TableCell>
+                      <StatusBadge status={status} />
+                    </TableCell>
+
+                    {/* Actions */}
+                    <TableCell>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
+                          gap: 4,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {STATUS_ACTIONS.map(({ status: s, label, icon: Icon, style: btnStyle, hoverBg }) => (
                           status !== s && (
                             <button
                               key={s}
                               onClick={() => updateStatus(order.id ?? "", s)}
-                              className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg border transition-colors ${className}`}
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                fontSize: 11,
+                                fontWeight: 600,
+                                padding: "4px 9px",
+                                borderRadius: 6,
+                                cursor: "pointer",
+                                transition: "background 0.18s ease, transform 0.18s ease",
+                                letterSpacing: "0.01em",
+                                ...btnStyle,
+                              }}
+                              onMouseEnter={e => {
+                                (e.currentTarget as HTMLButtonElement).style.background = hoverBg;
+                                (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.97)";
+                              }}
+                              onMouseLeave={e => {
+                                (e.currentTarget as HTMLButtonElement).style.background = btnStyle.background as string;
+                                (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
+                              }}
                             >
-                              <Icon className="h-3 w-3" />{label}
+                              <Icon style={{ width: 11, height: 11, strokeWidth: 1.5 }} />
+                              {label}
                             </button>
                           )
                         ))}
@@ -248,7 +525,11 @@ function AdminOrdersContent() {
           </TableBody>
         </Table>
       </div>
-      <p className="text-xs text-slate-400">{filtered.length} of {orders.length} orders shown</p>
+
+      {/* Footer count */}
+      <p style={{ fontSize: 12, color: "#9CA3AF", margin: 0 }}>
+        {filtered.length} of {orders.length} orders shown
+      </p>
     </div>
   );
 }
