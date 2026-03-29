@@ -360,7 +360,108 @@ Configured in `tailwind.config.ts` with:
 
 ---
 
-## 📄 Pages Overview
+## � Screenshots & Page Gallery
+
+### User Journey
+
+#### 1️⃣ **Home Page** - Shopping Hub
+The main landing page showcasing the product catalog with hero slider, featured categories, and quick navigation.
+```
+Route: / → redirects to /shop
+Features: Hero slider, category filters, product grid, search functionality
+```
+![Home/Shop Page](./public/readme/screencapture-136-110-49-14-2026-03-29-14_56_05.png)
+
+---
+
+#### 2️⃣ **Authentication Pages**
+
+##### Login Page
+User authentication with email/password credentials and link to registration.
+```
+Route: /(auth)/login
+Features: Form validation, "Remember me", password recovery link, signup redirect
+```
+![Login Page](./public/readme/screencapture-136-110-49-14-login-2026-03-29-14_58_20.png)
+
+##### Register Page
+New user account creation with email, password, and profile information.
+```
+Route: /(auth)/register
+Features: Form validation, password strength indicator, terms acceptance, login redirect
+```
+![Register Page](./public/readme/screencapture-136-110-49-14-register-2026-03-29-14_58_02.png)
+
+---
+
+#### 3️⃣ **Shopping Pages**
+
+##### Product Detail Page
+View detailed information about a specific product with images, description, price, and add-to-cart option.
+```
+Route: /shop/[id]
+Features: Image gallery, product specs, pricing, quantity selector, reviews, related items
+Example: /shop/PHONE
+```
+![Product Detail Page](./public/readme/screencapture-136-110-49-14-shop-PHONE-2026-03-29-14_56_53.png)
+
+##### My Orders Page
+Personal order history for the logged-in user with status tracking and reorder options.
+```
+Route: /my-orders
+Features: Order list, status badges, order details modal, reorder option, order timeline
+```
+![My Orders Page](./public/readme/screencapture-136-110-49-14-my-orders-2026-03-29-14_57_29.png)
+
+---
+
+#### 4️⃣ **Admin Pages** - Dashboard & Management
+
+##### Admin Dashboard
+Overview of key metrics, recent orders, inventory status, and quick actions.
+```
+Route: /dashboard (Admin only)
+Features: Stats cards, recent orders list, inventory overview, quick action buttons, performance charts
+```
+![Admin Dashboard](./public/readme/screencapture-136-110-49-14-dashboard-2026-03-29-14_59_28.png)
+
+##### Users Management
+Complete user management interface for admins - view, create, edit, and delete user accounts.
+```
+Route: /users (Admin only)
+Features: User table, bulk actions, search/filter, user creation form, role assignment
+```
+![Users Management](./public/readme/screencapture-136-110-49-14-users-2026-03-29-14_59_46.png)
+
+##### Items/Products Management
+Admin interface to manage product catalog - create, edit, delete items with images and pricing.
+```
+Route: /items (Admin only)
+Features: Product table, bulk actions, create/edit modal, image upload (base64), category tagging
+```
+![Items Management](./public/readme/screencapture-136-110-49-14-items-2026-03-29-15_00_22.png)
+
+##### Orders Management
+Comprehensive view of all orders in the system with filtering, search, and status updates.
+```
+Route: /orders (Admin only)
+Features: Order table, status filtering, order details, customer information, timeline view
+```
+![Orders Management](./public/readme/screencapture-136-110-49-14-orders-2026-03-29-15_00_53.png)
+
+---
+
+#### 5️⃣ **System Monitor** - Monitoring & Analytics
+Real-time system monitoring dashboard showing application logs, API activity, and system health.
+```
+Route: /system-monitor (Admin only)
+Features: Live logs, filtering by type/status, export (CSV/JSON), performance metrics, activity timeline
+```
+![System Monitor](./public/readme/screencapture-136-110-49-14-system-monitor-2026-03-29-15_01_26.png)
+
+---
+
+## �📄 Pages Overview
 
 ### Public Pages (No Authentication Required)
 
